@@ -47,14 +47,15 @@ class WeightedTrainer(Trainer):
         self.class_weights = class_weights
 
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
-        # Remove unwanted keyword argument
         kwargs.pop("num_items_in_batch", None)
         labels = inputs.get("labels")
         outputs = model(**inputs, **kwargs)
         logits = outputs.get("logits")
-        loss_fct = nn.CrossEntropyLoss(weight=self.class_weights.to(self.args.device))
+        device = next(model.parameters()).device
+        loss_fct = nn.CrossEntropyLoss(weight=self.class_weights.to(device))
         loss = loss_fct(logits, labels)
         return (loss, outputs) if return_outputs else loss
+
 
 def main():
     # 1) Load one data file from the data/ folder
@@ -111,6 +112,11 @@ def main():
 
     # 10) Load custom BERT-based model with numeric feature
     model = BertWithNumeric.from_pretrained(pretrained_model_name, config=config)
+
+    # Device selection: use MPS if available, otherwise CUDA if available, else CPU.
+    device = torch.device("mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu"))
+    print(f"[INFO] Using device: {device}")
+    model.to(device)
 
     # 11) Training arguments
     training_args = TrainingArguments(
