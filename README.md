@@ -15,5 +15,5 @@ A custom BERT-based model designed to classify expense categories by integrating
 Install the necessary libraries using pip:
 
 ```bash
-pip install transformers datasets torch
+pip install transformers datasets torch scikit-learn
 ```
