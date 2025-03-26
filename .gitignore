@@ -1,0 +1,5 @@
+__pycache__/
+data/
+model_architecture.mermaid
+output/
+output_final/
